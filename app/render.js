@@ -1,19 +1,24 @@
 
 function render() {
-	// TODO: interpolate player positions
-	var ctx = game.render_ctx;
+	// TODO(mb): interpolate player positions between game ticks
+	var ctx = render_ctx.canvas_ctx;
 	ctx.fillStyle = 'rgb(255, 0, 255)';
 	ctx.fillRect(0, 0, game.canvas_width, game.canvas_height);
 
-	for (var i = 0; i < game.tiles.length; i++) {
-		var tile = game.tiles[i];
-		var tsize = game.tile_size;
-		var world_x = i % game.world_width;
-		var world_y = Math.floor(i / game.world_height);
-		var render_x = world_x * game.tile_size;
-		var render_y = world_y * game.tile_size;
-		switch (tile) {
-			case 0: // free
+	var tsize = render_ctx.tile_size;
+	var psize = tsize / 2;
+
+	var map = game.map_state;
+	var tiles = map.tiles;
+	var world_w = map.world_width;
+	var world_h = map.world_height;
+	for (var i = 0; i < tiles.length; i++) {
+		var world_x = i % world_w;
+		var world_y = Math.floor(i / world_h);
+		var render_x = world_x * tsize;
+		var render_y = world_y * tsize;
+		switch (tiles[i]) {
+			case 0: // empty/grass
 				ctx.fillStyle = 'rgb(50, 200, 50)';
 				ctx.fillRect(render_x, render_y, tsize, tsize);
 				break
@@ -28,15 +33,15 @@ function render() {
 		}
 	};
 
-	for (var i = 0; i < game.players.length; i++) {
-		var player = game.players[i];
+	var srv_players = game.server_state.players;
+
+	for (var i = 0; i < srv_players.length; i++) {
+		var player = srv_players[i];
 		var render_x = player.world_x * tsize;
 		var render_y = player.world_y * tsize;
-		var psize = tsize / 2;
 		ctx.fillStyle = 'rgb(50, 50, 200)';
 		ctx.fillRect(render_x - psize / 2, render_y - psize / 2, psize, psize);
 	};
-
 }
 
 function render_loop() {

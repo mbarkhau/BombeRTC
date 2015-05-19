@@ -1,168 +1,127 @@
 
-
-function update_world() {
-	var player = game.players[game.player_id];
-	var as = game.inputs;
-
-	if (as.up) {
-		player.actions.push('up');
-	}
-	if (as.down) {
-		player.actions.push('down');
-	}
-	if (as.left) {
-		player.actions.push('left');
-	}
-	if (as.right) {
-		player.actions.push('right');
-	}
-	if (as.bomb) {
-		player.actions.push('bomb');
-		as.bomb = false;
-	}
-
-	// movement
-	for (var i = 0; i < game.players.length; i++) {
-		var delta_x = 0;
-		var delta_y = 0;
-		var player = game.players[i];
-		for (var j = 0; j < player.actions.length; j++) {
-			switch (player.actions[j]) {
-				case 'left':
-					delta_x -= player.speed;
-					break;
-				case 'right':
-					delta_x += player.speed;
-					break;
-				case 'up':
-					delta_y -= player.speed;
-					break;
-				case 'down':
-					delta_y += player.speed;
-					break;
-			}
-		}
-		player.actions.length = 0;
-
-		player.accel_x = (player.accel_x + delta_x) / 2;
-		player.accel_y = (player.accel_y + delta_y) / 2;
-		player.world_x += player.accel_x;
-		player.world_y += player.accel_y;
-	}
-
-	// collision detection
-	for (var i = 0; i < game.players.length; i++) {
-		var player = game.players[i]
-
-	}
-	game_stats(1);
-}
-
-
 function init_game() {
-	var canvas =  document.getElementById('canvas');
+	var canvas =  doc.getElementById('canvas');
 	canvas.width = 650;
 	canvas.height = 650;
+	var map_id = 0;
+	var tiles = TILES[map_id];
 
-	game = {
-		'world_width': 13,
-		'world_height': 13,
+	render_ctx = {
 		'tile_size': 50,
 		'canvas_width': 650,
 		'canvas_height': 650,
 		'canvas': canvas,
-		'render_ctx': canvas.getContext('2d'),
+		'canvas_ctx': canvas.getContext('2d'),
+	};
+	game = {
 		'world_start': now(),   // This does not have to match up
 								// between machines.
-		'tick': 0,
+
 		'tick_start': 0,
-		'tick_duration': 16,
-		'tiles': [
-			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			1, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1,
-			1, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 2, 1, 2, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-			1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 2, 1, 2, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-			1, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-			// "#############",
-			// "#  ++       #",
-			// "# # #+# # # #",
-			// "#  ++       #",
-			// "#+#+# # # # #",
-			// "#+++        #",
-			// "#+#+# # # # #",
-			// "# +++       #",
-			// "# #+# # # # #",
-			// "#           #",
-			// "# # # # # # #",
-			// "#           #",
-			// "#############"
-		],
-		'items': [],
+
 		'player_id': 0,
-		'inputs': {
-			'up': false,
-			'down': false,
-			'left': false,
-			'right': false,
-			'bomb': false,
-			'mouse_x': -1,
-			'mouse_y': -1,
-		},
+
+		// Metadata of each player (nick, capabilities)
 		'players': [
 			{
 				'nick': "player 1",
 				'conn': null,
-				'world_x': 1.5,
-				'world_y': 1.5,
-				'accel_x': 0,
-				'accel_y': 0,
-				'actions': [],
-				'speed': 0.1,
-				'bombs': 1,
-				'bomb_radius': 1
 			},
 			{
 				'nick': "player 2",
 				'conn': null,
-				'world_x': 11.5,
-				'world_y': 11.5,
-				'accel_x': 0,
-				'accel_y': 0,
-				'actions': [],
-				'speed': 0.1,
-				'bombs': 1,
-				'bomb_radius': 1
-			},
-		]
+			}
+		],
+
+		// This datastructure is sent at the beginning of the game.
+		'map_state': {
+			'tiles': tiles,
+			'world_width': Math.sqrt(tiles.length),
+			'world_height': Math.sqrt(tiles.length),
+			'tick_duration': GAME_TICK_TIME,
+		},
+
+		// This datastructure is sent every tick to all players.
+		// Any updates to player metadata/capabilities is also
+		// stored/transmitted here.
+		'server_state': {
+			'tick': 0,
+			'items': [],
+			'players': [
+				{
+					'world_x': 1.5,
+					'world_y': 1.5,
+					'accel_x': 0,
+					'accel_y': 0,
+
+					'speed': 0.11,
+					'max_bombs': 1,
+					'bomb_radius': 1,
+					'alive': true,
+				},
+				{
+					'world_x': 11.5,
+					'world_y': 11.5,
+					'accel_x': 0,
+					'accel_y': 0,
+
+					'speed': 0.11,
+					'max_bombs': 1,
+					'bomb_radius': 1,
+					'alive': true,
+				}
+			]
+		},
+
+		// This datastructure is sent every tick by each player.
+		'client_states': {
+			'players': [
+				{
+					'actions': {
+					//	'up': false,
+					//	'down': false,
+					//	'left': false,
+					//	'right': false,
+					//	'bomb': false,
+					}
+				},
+				{
+					'actions': {
+					//	'up': false,
+					//	'down': false,
+					//	'left': false,
+					//	'right': false,
+					//	'bomb': false,
+					}
+				}
+			]
+		}
 	};
 
 	function key_handler(e) {
 		var keycode = e.which;
 		var action = null;
+		var cancel_action = null;
 		switch (keycode) {
 			case 37:
 			case 65:
 				action = 'left';
+				cancel_action = 'right';
 				break;
 			case 38:
 			case 87:
 				action = 'up';
+				cancel_action = 'down';
 				break;
 			case 39:
 			case 68:
 				action = 'right';
+				cancel_action = 'left';
 				break;
 			case 40:
 			case 83:
 				action = 'down';
+				cancel_action = 'up';
 				break;
 			case 32:
 			case 13:
@@ -170,58 +129,44 @@ function init_game() {
 				break;
 		}
 		if (action) {
+			var actions = game.client_states.players[game.player_id].actions;
 			e.preventDefault();
  			if (e.type == 'keydown') {
-				game.inputs[action] = now();
-			} else if (e.type == 'keyup' && action != 'bomb') {
-				game.inputs[action] = false;
+				actions[action] = now();
+				if (cancel_action) {
+					delete actions[cancel_action];
+				}
+			} else if (e.type == 'keyup') {
+				delete actions[action];
 			}
 		}
 	}
-	document.body.addEventListener('keydown', key_handler);
-	document.body.addEventListener('keyup', key_handler);
-	var pix_node = document.getElementById('pix');
-
-	function mouse_handler(e) {
-		game.inputs.mouse_x = e.clientX;
-		game.inputs.mouse_y = e.clientY;
-		pix_node.style.cssText = (
-			"top: " + (e.clientY - 7) + "px; left: " + (e.clientX - 50) + "px;"
-		);
-	}
-	canvas.addEventListener('mousemove', mouse_handler);
+	doc.body.addEventListener('keydown', key_handler);
+	doc.body.addEventListener('keyup', key_handler);
 
 	// Ticker is guaranteed to run at 30 fps,
 	// even if the tab is put in the background
 	var ticker = new Worker("app/tick.js");
 	ticker.postMessage("" + GAME_TICK_TIME);
 	ticker.addEventListener('message', game_loop)
+
+	// render loop runs as fast as possible and
+	// interpolates between network frames.
 	render_loop();
 }
 
 function game_loop() {
 	var t = now();
-	var td = t - game.tick_start;
 
-	var target_tick = Math.round((t - game.world_start) / GAME_TICK_TIME);
-	var next_target_tick = target_tick;
-	if (game.tick < target_tick) {
-		// TODO: delay tick if we are waiting on network
-		game.tick_start = t;
-		game.tick += 1;
-
-		game_stats(0);
-		update_world();
-		game_stats(1);
-		next_target_tick = game.tick + 1;
-	}
+	// TODO: pause game if we haven't heard from a player
+	game_stats(0);
+	// update_player_info();
+	update_world();
+	game_stats(1);
+	next_target_tick = game.tick + 1;
 
 	net_stats(1);
 	net_stats(0);
-	var next_target_t = game.world_start + next_target_tick * GAME_TICK_TIME;
-	setTimeout(game_loop, next_target_t - t);
 }
 
 init_game();
-
-// TODO: watch for lost connection

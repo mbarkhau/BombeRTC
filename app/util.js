@@ -1,7 +1,8 @@
-win = window;
+var win = window;
+var doc = document;
 
 function log() {
-	var log = document.getElementById('log');
+	var log = doc.getElementById('log');
 	var child = log.insertBefore(log.lastChild, log.firstChild);
 	child.textContent = Array.prototype.join.call(arguments, ", ");
 }
@@ -22,7 +23,7 @@ RAF = (
 	win.mozRequestAnimationFrame ||
 	win.webkitRequestAnimationFrame ||
 	win.msRequestAnimationFrame || function(cb) {
-		return win.setTimeout(cb, 16.67);
+		return win.setTimeout(cb, 16.6667);
 	}
 );
 
