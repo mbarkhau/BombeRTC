@@ -191,7 +191,11 @@ function init_game() {
 	}
 	canvas.addEventListener('mousemove', mouse_handler);
 
-	game_loop();
+	// Ticker is guaranteed to run at 30 fps,
+	// even if the tab is put in the background
+	var ticker = new Worker("app/tick.js");
+	ticker.postMessage("" + GAME_TICK_TIME);
+	ticker.addEventListener('message', game_loop)
 	render_loop();
 }
 
