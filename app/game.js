@@ -33,6 +33,8 @@ function update_world() {
 		}
 		if (cl_actions.bomb) {
 		}
+		if (cl_actions.kick) {
+		}
 
 		srv_player.accel_x = (srv_player.accel_x + delta_x) / 2;
 		srv_player.accel_y = (srv_player.accel_y + delta_y) / 2;

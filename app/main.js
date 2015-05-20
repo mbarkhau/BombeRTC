@@ -1,15 +1,19 @@
 
 function init_game() {
-	var canvas =  doc.getElementById('canvas');
-	canvas.width = 650;
-	canvas.height = 650;
+	// TODO(mb): max tile size?
+	var dim = get_canvas_dim();
+	var canvas =  byId('canvas');
+	canvas.width = dim;
+	canvas.height = dim;
+	show("canvas")
+	hide("overlay")
 	var map_id = 0;
 	var tiles = TILES[map_id];
 
 	render_ctx = {
-		'tile_size': 50,
-		'canvas_width': 650,
-		'canvas_height': 650,
+		'tile_size': dim / 13,
+		'canvas_width': dim,
+		'canvas_height': dim,
 		'canvas': canvas,
 		'canvas_ctx': canvas.getContext('2d'),
 	};
@@ -103,29 +107,32 @@ function init_game() {
 		var action = null;
 		var cancel_action = null;
 		switch (keycode) {
-			case 37:
-			case 65:
+			case 37: // Up Arrow
+			case 65: // A
 				action = 'left';
 				cancel_action = 'right';
 				break;
-			case 38:
-			case 87:
+			case 38: // Up Arrow
+			case 87: // W
 				action = 'up';
 				cancel_action = 'down';
 				break;
-			case 39:
-			case 68:
+			case 39: // Right Arrow
+			case 68: // D
 				action = 'right';
 				cancel_action = 'left';
 				break;
-			case 40:
-			case 83:
+			case 40: // Down Arrow
+			case 83: // S
 				action = 'down';
 				cancel_action = 'up';
 				break;
-			case 32:
-			case 13:
+			case 32: // Space
+			case 13: // Enter
 				action = 'bomb';
+				break;
+			case 16: // Shift
+				action = 'kick';
 				break;
 		}
 		if (action) {
@@ -169,4 +176,40 @@ function game_loop() {
 	net_stats(0);
 }
 
-init_game();
+var MENU_STATE = {
+	'active': false,
+	'active_menu': "main-menu",
+	'active_option': 0,
+}
+
+function menu_key_handler(e) {
+	console.log("keydown", e);
+}
+
+function menu_focus (e) {
+	console.log("focus", e);
+}
+
+function menu_select (e) {
+	console.log("select", e);
+}
+
+function init () {
+	var dim = get_canvas_dim();
+	var container = byId("container")
+	setStyles("container", {
+		'width': dim + "px",
+		'height': dim + "px",
+		'margin-top': ((win.innerHeight - dim) / 2) + "px",
+	});
+	win.addEventListener('load', function () {
+		MENU_STATE.active = true;
+		listenOn("body", 'keydown', menu_key_handler);
+		listenOn(".menu-option", 'mouseover', menu_focus);
+		listenOn(".menu-option", 'click', menu_select);
+		show("menu");
+		hide("loading");
+	}, false);
+}
+
+init();

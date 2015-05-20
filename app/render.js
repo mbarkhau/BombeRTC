@@ -23,11 +23,11 @@ function render() {
 				ctx.fillRect(render_x, render_y, tsize, tsize);
 				break
 			case 1: // solid
-				ctx.fillStyle = 'rgb(50, 50, 50)';
+				ctx.fillStyle = 'rgb(17, 17, 17)';
 				ctx.fillRect(render_x, render_y, tsize, tsize);
 				break
 			case 2: // destructable
-				ctx.fillStyle = 'rgb(150, 150, 150)';
+				ctx.fillStyle = 'rgb(120, 120, 120)';
 				ctx.fillRect(render_x, render_y, tsize, tsize);
 				break
 		}
