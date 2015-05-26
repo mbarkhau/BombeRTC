@@ -1,3 +1,6 @@
+# Assets have to be added explicitly
+assets/*
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
