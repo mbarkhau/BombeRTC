@@ -1,62 +1,19 @@
+<!doctype html>
 <html>
 <head>
-	<link rel="stylesheet" type="text/css" href="style/main.css">
+<title>BombeRTC</title>
+<script type="text/javascript" src="/app/loader.js?_cb_=123"></script>
+<style type="text/css">#app, #loading, #resources {display: none;}</style>
 </head>
 <body>
-	<div id="log">
-		<div></div>
-		<div></div>
-		<div></div>
-		<div></div>
-		<div></div>
-		<div></div>
-		<div></div>
-		<div></div>
-		<div></div>
-		<div></div>
-		<div></div>
-		<div></div>
+	<div id="app"></div>
+	<div id="loading">
+		<div class="spinner">
+			<div class="double-bounce1"></div>
+			<div class="double-bounce2"></div>
+		</div>
+		<div id="progress"></div>
 	</div>
-	<div id="container">
-		<canvas id="canvas"></canvas>
-		<div id="overlay">
-			<div id="loading">
-				<div class="spinner">
-				  <div class="double-bounce1"></div>
-				  <div class="double-bounce2"></div>
-				</div>
-				<div class="progress"></div>
-			</div>
-			<div id="menu">
-				<div id="main-menu" class="menu-wrap">
-					<div class="menu-option active" data-action="show-game-menu">NEW GAME</div>
-					<div class="menu-option" data-action="show-settings-menu">SETTINGS</div>
-					<div class="menu-option" data-action="show-credits">CREDITS</div>
-				</div>
-				<div id="game-menu" class="menu-wrap">
-					<div class="menu-option active">RANDOM GAME</div>
-					<div class="menu-option">PARTY FFA</div>
-					<div class="menu-option">BACK</div>
-				</div>
-				<div id="settings-menu" class="menu-wrap">
-					<div class="menu-option active">NICK: Awesomeballs</div>
-					<div class="menu-option">AUDIO OFF</div>
-					<div class="menu-option">BACK</div>
-				</div>
-			</div>
-			<div id="credits"></div>
-			<div id="scoreboard"></div>
-		<div>
-	</div>
-	<script src="/lib/peer.js"></script>
-	<script src="/lib/stats.js"></script>
-
-	<script src="/app/util.js"></script>
-	<script src="/app/globals.js"></script>
-	<script src="/app/net.js"></script>
-	<script src="/app/render.js"></script>
-	<script src="/app/menu.js"></script>
-	<script src="/app/game.js"></script>
-	<script src="/app/main.js"></script>
+	<div id="resources"></div>
 </body>
 </html>
