@@ -107,31 +107,33 @@ function init_game() {
 		var action = null;
 		var cancel_action = null;
 		switch (keycode) {
-			case 37: // Up Arrow
-			case 65: // A
+			case 37: 	// Up Arrow
+			case 65: 	// A
 				action = 'left';
 				cancel_action = 'right';
 				break;
-			case 38: // Up Arrow
-			case 87: // W
+			case 38: 	// Up Arrow
+			case 87: 	// W
 				action = 'up';
 				cancel_action = 'down';
 				break;
-			case 39: // Right Arrow
-			case 68: // D
+			case 39: 	// Right Arrow
+			case 68: 	// D
 				action = 'right';
 				cancel_action = 'left';
 				break;
-			case 40: // Down Arrow
-			case 83: // S
+			case 40: 	// Down Arrow
+			case 83: 	// S
 				action = 'down';
 				cancel_action = 'up';
 				break;
-			case 32: // Space
-			case 13: // Enter
+			case 32: 	// Space
+			case 13: 	// Enter
 				action = 'bomb';
 				break;
-			case 16: // Shift
+			case 9: 	// Tab
+				action = 'scoreboard';
+			case 16: 	// Shift
 				action = 'kick';
 				break;
 		}
@@ -182,6 +184,11 @@ var MENU_STATE = {
 	'active_option': 0,
 }
 
+function update_menus() {
+	show(MENU_STATE.active_menu);
+	setStyles("#" + MENU_STATE.active_menu + " > div", {})
+}
+
 function menu_key_handler(e) {
 	console.log("keydown", e);
 }
@@ -202,11 +209,12 @@ function init () {
 		'height': dim + "px",
 		'margin-top': ((win.innerHeight - dim) / 2) + "px",
 	});
+	update_menus();
 	win.addEventListener('load', function () {
 		MENU_STATE.active = true;
-		listenOn("body", 'keydown', menu_key_handler);
-		listenOn(".menu-option", 'mouseover', menu_focus);
-		listenOn(".menu-option", 'click', menu_select);
+		onEvent('keydown', "body", menu_key_handler);
+		onEvent('mouseover', ".menu-option", menu_focus);
+		onEvent('click', ".menu-option", menu_select);
 		show("menu");
 		hide("loading");
 	}, false);
